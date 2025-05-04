@@ -1,5 +1,5 @@
-// ---- Data ----
-const initial = ['person','money','idea'];
+// ---- INITIAL DATA ----
+const initialElements = ['person','money','idea'];
 const recipes = {
   'person+money':'producer',
   'person+person':'actor',
@@ -97,84 +97,79 @@ const recipes = {
   'Shaun of the dead+trillogy':'cornetto'
 };
 
-// ---- Sounds ----
+// ---- SOUNDS ----
 const clearSound = new Audio('clear.wav');
 const matchSound = new Audio('match.wav');
 
-// ---- State ----
-let inventory = [...initial];
-let discovered = new Set(initial);
+// ---- STATE & REFS ----
+let inventory = [...initialElements];
+let discovered = new Set(initialElements);
 let dragSourceName = null;
 let dragSourceEl = null;
 
-// ---- DOM Refs ----
 const invEl = document.getElementById('inventory-items');
 const workEl = document.getElementById('workspace');
 const clearBtn = document.getElementById('clear-btn');
 const notifyParent = document.getElementById('notification-container');
 
-// ---- Create Inventory Tile ----
-function makeInventoryTile(name) {
-  const d = document.createElement('div');
-  d.className = 'element';
-  d.textContent = name;
-  d.dataset.name = name;
-  d.draggable = true;
-  d.addEventListener('dragstart', () => {
-    dragSourceName = name;
-    dragSourceEl = null;
+// ---- RENDER INVENTORY ----
+function renderInventory() {
+  invEl.innerHTML = '';
+  inventory.forEach(name => {
+    const d = document.createElement('div');
+    d.className = 'element';
+    d.textContent = name;
+    d.dataset.name = name;
+    d.draggable = true;
+    d.addEventListener('dragstart', () => {
+      dragSourceName = name;
+      dragSourceEl = null;
+    });
+    invEl.appendChild(d);
   });
-  return d;
 }
+renderInventory();
 
-// ---- Create Workspace Tile ----
+// ---- MAKE AND APPEND A WORKSPACE TILE ----
 function makeWorkspaceTile(name, x, y) {
   const d = document.createElement('div');
   d.className = 'element';
   d.textContent = name;
   d.dataset.name = name;
-  d.style.left = x + 'px';
-  d.style.top = y + 'px';
   d.style.position = 'absolute';
-
-  // dragstart for combine/move
+  d.style.left = x + 'px';
+  d.style.top  = y + 'px';
   d.draggable = true;
+
   d.addEventListener('dragstart', e => {
     dragSourceName = name;
     dragSourceEl = d;
     e.dataTransfer.setData('text/plain', '');
   });
 
-  // combine: drop onto another tile
   d.addEventListener('dragover', e => e.preventDefault());
   d.addEventListener('drop', e => {
     e.preventDefault();
-    if (!dragSourceName) return;
     combine(d.dataset.name, dragSourceName);
   });
 
-  // cleanup drag state on end
-  d.addEventListener('dragend', () => {
-    dragSourceName = null;
-    dragSourceEl = null;
-  });
-
+  workEl.appendChild(d);
   return d;
 }
 
-// ---- Combine Logic ----
-function combine(target, source) {
-  const result = recipes[`${target}+${source}`] || recipes[`${source}+${target}`];
-  if (result && !discovered.has(result)) {
-    discovered.add(result);
-    inventory.push(result);
+// ---- COMBINE TWO ELEMENTS ----
+function combine(a, b) {
+  const res = recipes[`${a}+${b}`] || recipes[`${b}+${a}`];
+  if (res && !discovered.has(res)) {
+    discovered.add(res);
+    inventory.push(res);
     matchSound.play();
-    showNotification(`Discovered: ${result}`);
+    showNotification(`Discovered: ${res}`);
     renderInventory();
   }
 }
 
-// ---- Show Popup ----
+// ---- POPUP ----
 function showNotification(txt) {
   const n = document.createElement('div');
   n.className = 'notification';
@@ -183,48 +178,45 @@ function showNotification(txt) {
   n.addEventListener('animationend', () => n.remove());
 }
 
-// ---- Render Inventory ----
-function renderInventory() {
-  invEl.innerHTML = '';
-  inventory.forEach(name => {
-    invEl.appendChild(makeInventoryTile(name));
-  });
-}
-
-// ---- Workspace Drop (spawn or move) ----
+// ---- WORKSPACE DROP: SPAWN / MOVE / COMBINE ----
 workEl.addEventListener('dragover', e => e.preventDefault());
 workEl.addEventListener('drop', e => {
   e.preventDefault();
   if (!dragSourceName) return;
+
   const rect = workEl.getBoundingClientRect();
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
 
-  if (!dragSourceEl) {
-    // Spawn new tile
-    workEl.appendChild(makeWorkspaceTile(dragSourceName, x, y));
-  } else {
-    // Move existing tile
+  const el = document.elementFromPoint(e.clientX, e.clientY);
+  const target = el && el.closest('.element') && workEl.contains(el.closest('.element'))
+    ? el.closest('.element')
+    : null;
+
+  if (target) {
+    combine(target.dataset.name, dragSourceName);
+  } else if (dragSourceEl) {
+    // move existing
     dragSourceEl.style.left = x + 'px';
-    dragSourceEl.style.top = y + 'px';
+    dragSourceEl.style.top  = y + 'px';
+  } else {
+    // spawn new
+    makeWorkspaceTile(dragSourceName, x, y);
   }
 
   dragSourceName = null;
   dragSourceEl = null;
 });
 
-// ---- Clear Canvas ----
+// ---- CLEAR CANVAS ----
 clearBtn.addEventListener('click', () => {
   workEl.querySelectorAll('.element').forEach(el => el.remove());
   clearSound.play();
   showNotification('Canvas Cleared');
   if (!workEl.querySelector('.hint')) {
-    const h = document.createElement('p');
-    h.className = 'hint';
-    h.textContent = 'Drag items here';
-    workEl.prepend(h);
+    const p = document.createElement('p');
+    p.className = 'hint';
+    p.textContent = 'Drag items here';
+    workEl.prepend(p);
   }
 });
-
-// ---- Init ----
-renderInventory();
