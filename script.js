@@ -215,7 +215,7 @@ workEl.addEventListener('drop', e=>{
 // ---- TOUCH DRAG/DROP FOR MOBILE ----
 const touchData = {};
 function onTouchStart(e) {
-	 unlockAudio(); // 🔓 unlock iOS audio context
+	// unlockAudio(); // 🔓 unlock iOS audio context
   
   e.preventDefault();
   const el = e.currentTarget;
