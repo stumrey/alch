@@ -1,11 +1,9 @@
-/* —————————————————————————————
-   0) Prevent overscroll/zoom on touch
-————————————————————————————— */
+/* 0) Prevent overscroll/zoom on touch */
 html, body {
   overscroll-behavior: none;
 }
 
-/* — Drag ghost for touch fallback — */
+/* Drag ghost for touch fallback */
 .drag-ghost {
   position: fixed;
   pointer-events: none;
@@ -13,9 +11,7 @@ html, body {
   z-index: 10000;
 }
 
-/* —————————————————————————————
-   1) Base reset & font
-————————————————————————————— */
+/* 1) Base reset & font */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 * {
   box-sizing: border-box;
@@ -27,21 +23,13 @@ body {
   height: 100vh;
   font-family: 'Poppins', sans-serif;
   background:
-    repeating-linear-gradient(
-      45deg,
-      rgba(255,255,255,0.04) 0px,
-      rgba(255,255,255,0.04) 1px,
-      transparent 1px,
-      transparent 10px
-    ),
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.04) 0, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 10px),
     linear-gradient(135deg, #1e3c72, #2a5298);
   color: #f0f0f0;
   overflow: hidden;
 }
 
-/* —————————————————————————————
-   2) Block native scroll during touch-drag
-————————————————————————————— */
+/* 2) Block native scroll during touch-drag */
 #inventory,
 #workspace,
 .element {
@@ -49,23 +37,15 @@ body {
   -ms-touch-action: none;
 }
 
-/* —————————————————————————————
-   3) Inventory panel
-————————————————————————————— */
+/* 3) Inventory panel */
 #inventory {
   width: 240px;
   background:
-    repeating-linear-gradient(
-      45deg,
-      rgba(255,255,255,0.03) 0px,
-      rgba(255,255,255,0.03) 1px,
-      transparent 1px,
-      transparent 10px
-    ),
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 10px),
     rgba(44,62,80,0.85);
   border-right: 3px solid rgba(255,255,255,0.3);
   padding: 16px;
-  overflow-y: hidden;  /* hide vertical scroll */
+  overflow-y: hidden;
   box-shadow: 4px 0 12px rgba(0,0,0,0.5);
 }
 #inventory h2 {
@@ -76,28 +56,19 @@ body {
 }
 #inventory-items {
   display: flex;
-  flex-wrap: wrap;      /* default desktop flow */
+  flex-wrap: wrap;
   gap: 8px;
-  /* horizontal scroll once items overflow */
   overflow-x: auto;
   overflow-y: hidden;
-  -webkit-overflow-scrolling: touch; /* iOS momentum */
+  -webkit-overflow-scrolling: touch;
 }
 
-/* —————————————————————————————
-   4) Workspace area
-————————————————————————————— */
+/* 4) Workspace area */
 #workspace {
   flex: 1;
   position: relative;
   background:
-    repeating-linear-gradient(
-      45deg,
-      rgba(255,255,255,0.03) 0px,
-      rgba(255,255,255,0.03) 1px,
-      transparent 1px,
-      transparent 10px
-    ),
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 10px),
     rgba(52,73,94,0.7);
   border-left: 3px solid rgba(255,255,255,0.3);
   padding: 16px;
@@ -112,13 +83,13 @@ body {
   font-size: 0.9em;
 }
 
-/* —————————————————————————————
-   5) Clear button (icon-only)
-————————————————————————————— */
+/* 5) Clear button (icon-only) */
 #clear-btn {
   position: absolute;
-  top: 16px; left: 16px;
-  width: 40px; height: 40px;
+  top: 16px;
+  left: 16px;
+  width: 40px;
+  height: 40px;
   background: linear-gradient(45deg, #e74c3c, #c0392b);
   border: none;
   border-radius: 50%;
@@ -136,9 +107,7 @@ body {
   font-size: 20px;
 }
 
-/* —————————————————————————————
-   6) Element tiles
-————————————————————————————— */
+/* 6) Element tiles */
 .element {
   background: #ff9f1c;
   padding: 6px 10px;
@@ -161,12 +130,11 @@ body {
   margin-right: 8px;
 }
 
-/* —————————————————————————————
-   7) Notifications
-————————————————————————————— */
+/* 7) Notifications */
 #notification-container {
   position: fixed;
-  top: 20px; left: 50%;
+  top: 20px;
+  left: 50%;
   transform: translateX(-50%);
   pointer-events: none;
   z-index: 1000;
@@ -187,9 +155,7 @@ body {
   100%   { opacity: 0; }
 }
 
-/* —————————————————————————————
-   8) Mobile layout (≤600px)
-————————————————————————————— */
+/* 8) Mobile layout (≤600px) */
 @media (max-width: 600px) {
   body {
     flex-direction: column;

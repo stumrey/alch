@@ -105,14 +105,11 @@ const matchSound = new Audio('match.wav');
 let audioUnlocked = false;
 function unlockAudio() {
   if (audioUnlocked) return;
-  // try to play & pause matchSound so the system considers us "gesture-driven"
-  matchSound.play().then(() => matchSound.pause()).catch(() => {/*ignored*/});
+  matchSound.play().then(() => matchSound.pause()).catch(() => {});
   audioUnlocked = true;
 }
-// Listen for the first real tap/click anywhere
-document.addEventListener('click',   unlockAudio, { once: true });
-document.addEventListener('touchend',unlockAudio, { once: true });
-
+document.addEventListener('click', unlockAudio, { once: true });
+document.addEventListener('touchend', unlockAudio, { once: true });
 
 // ---- STATE & REFS ----
 let inventory = [...initialElements];
@@ -125,7 +122,7 @@ const workEl       = document.getElementById('workspace');
 const clearBtn     = document.getElementById('clear-btn');
 const notifyParent = document.getElementById('notification-container');
 
-// ---- SHOW POPUP ----
+// ---- SHOW NOTIFICATION ----
 function showNotification(txt) {
   const n = document.createElement('div');
   n.className = 'notification';
@@ -143,21 +140,25 @@ function renderInventory() {
     d.textContent = name;
     d.dataset.name = name;
     d.draggable = true;
+
     d.addEventListener('dragstart', () => {
+      unlockAudio();
       dragSourceName = name;
       dragSourceEl   = null;
     });
-    d.addEventListener('touchstart', onTouchStart, { passive: false });
+    d.addEventListener('touchstart', e => {
+      unlockAudio();
+      onTouchStart(e);
+    }, { passive: false });
+
     invEl.appendChild(d);
   });
 
-  // <-- NEW: always scroll horizontally to show the newest element
-  // give the browser a moment to layout
+  // Auto-scroll horizontally to show the newest pill
   requestAnimationFrame(() => {
-    invEl.scrollLeft = invEl.scrollWidth;
+    invEl.scrollLeft = invEl.scrollWidth - invEl.clientWidth;
   });
 }
-
 renderInventory();
 
 // ---- MAKE WORKSPACE TILE ----
@@ -172,16 +173,21 @@ function makeWorkspaceTile(name, x, y) {
   d.draggable = true;
 
   d.addEventListener('dragstart', e => {
+    unlockAudio();
     dragSourceName = name;
     dragSourceEl   = d;
     e.dataTransfer.setData('text/plain', '');
   });
+  d.addEventListener('touchstart', e => {
+    unlockAudio();
+    onTouchStart(e);
+  }, { passive: false });
+
   d.addEventListener('dragover', e => e.preventDefault());
   d.addEventListener('drop', e => {
     e.preventDefault();
     combine(d.dataset.name, dragSourceName);
   });
-  d.addEventListener('touchstart', onTouchStart, { passive: false });
 
   workEl.appendChild(d);
   return d;
@@ -192,7 +198,7 @@ function combine(a, b) {
   const res = recipes[`${a}+${b}`] || recipes[`${b}+${a}`];
   if (res && !discovered.has(res)) {
     discovered.add(res);
-    inventory.push(res);
+    inventory.push(res);    
     matchSound.play();
     showNotification(`Discovered: ${res}`);
     renderInventory();
