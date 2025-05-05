@@ -1,7 +1,6 @@
 // ---- INITIAL DATA & RECIPES ----
 const initialElements = ['person','money','idea'];
 const recipes = {
-  /* your full recipe map here */
   'person+money':'producer',
   'person+person':'actor',
   'idea+person':'writer',
@@ -133,7 +132,6 @@ function renderInventory() {
       dragSourceName = name;
       dragSourceEl = null;
     });
-    // touchstart for inventory spawn & combine on mobile
     d.addEventListener('touchstart', onTouchStart, {passive:false});
     invEl.appendChild(d);
   });
@@ -158,9 +156,10 @@ function makeWorkspaceTile(name,x,y) {
   d.addEventListener('dragover', e => e.preventDefault());
   d.addEventListener('drop', e => {
     e.preventDefault();
-    combine(d.dataset.name, dragSourceName);
+    if (combine(d.dataset.name, dragSourceName)) {
+      matchSound.play();
+    }
   });
-  // touch handlers for workspace tile
   d.addEventListener('touchstart', onTouchStart, {passive:false});
   workEl.appendChild(d);
   return d;
@@ -172,10 +171,11 @@ function combine(a,b) {
   if(res && !discovered.has(res)) {
     discovered.add(res);
     inventory.push(res);
-    matchSound.play();
     showNotification('Discovered: '+res);
     renderInventory();
+    return true;
   }
+  return false;
 }
 
 // ---- DESKTOP DRAG/DROP ----
@@ -187,10 +187,12 @@ workEl.addEventListener('drop', e=>{
   const r = workEl.getBoundingClientRect();
   const x = e.clientX - r.left, y = e.clientY - r.top;
   const el = document.elementFromPoint(e.clientX,e.clientY);
-  const target = el&&el.closest('.element')&&workEl.contains(el.closest('.element'))
+  const target = el?.closest('.element') && workEl.contains(el.closest('.element'))
                  ? el.closest('.element') : null;
   if(target) {
-    combine(target.dataset.name, dragSourceName);
+    if (combine(target.dataset.name, dragSourceName)) {
+      matchSound.play();
+    }
   } else if(dragSourceEl){
     dragSourceEl.style.left = x+'px';
     dragSourceEl.style.top  = y+'px';
@@ -203,7 +205,7 @@ workEl.addEventListener('drop', e=>{
 // ---- TOUCH DRAG/DROP FOR MOBILE ----
 const touchData = {};
 function onTouchStart(e) {
-  e.preventDefault(); // stop scroll
+  e.preventDefault();
   const el = e.currentTarget;
   const fromWorkspace = workEl.contains(el);
   touchData.name = el.dataset.name;
@@ -233,6 +235,7 @@ function moveGhost(t) {
   touchData.ghost.style.left = (t.clientX-touchData.offsetX)+'px';
   touchData.ghost.style.top  = (t.clientY-touchData.offsetY)+'px';
 }
+
 function onTouchEnd(e) {
   document.removeEventListener('touchmove', onTouchMove);
   document.removeEventListener('touchend', onTouchEnd);
@@ -250,8 +253,9 @@ function onTouchEnd(e) {
   if (touchData.sourceEl) {
     // From workspace
     if (target && target !== touchData.sourceEl) {
-      combine(target.dataset.name, touchData.name);
-     // touchData.sourceEl.remove();
+      if (combine(target.dataset.name, touchData.name)) {
+        matchSound.play();
+      }
     } else if (inside) {
       const x = dropX - wsR.left - touchData.offsetX;
       const y = dropY - wsR.top - touchData.offsetY;
@@ -259,24 +263,20 @@ function onTouchEnd(e) {
       touchData.sourceEl.style.top = y + 'px';
     }
   } else {
-    // From inventory — always spawn tile in workspace
+    // From inventory
     const x = dropX - wsR.left - touchData.offsetX;
     const y = dropY - wsR.top - touchData.offsetY;
-    makeWorkspaceTile(touchData.name, x, y); // always place tile
-
-    if (target) {
-      combine(target.dataset.name, touchData.name); // match if possible
+    const newTile = makeWorkspaceTile(touchData.name, x, y);
+    if (target && target !== newTile) {
+      if (combine(target.dataset.name, touchData.name)) {
+        matchSound.play();
+      }
     }
   }
 
   touchData.ghost.remove();
 }
 
-
-
-
-
-  
 // ---- CLEAR CANVAS ----
 clearEl.addEventListener('click',() => {
   workEl.querySelectorAll('.element').forEach(el=>el.remove());

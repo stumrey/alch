@@ -233,7 +233,6 @@ function moveGhost(t) {
   touchData.ghost.style.left = (t.clientX-touchData.offsetX)+'px';
   touchData.ghost.style.top  = (t.clientY-touchData.offsetY)+'px';
 }
-
 function onTouchEnd(e) {
   document.removeEventListener('touchmove', onTouchMove);
   document.removeEventListener('touchend', onTouchEnd);
@@ -245,15 +244,14 @@ function onTouchEnd(e) {
 
   const inside = dropX >= wsR.left && dropX <= wsR.right && dropY >= wsR.top && dropY <= wsR.bottom;
   const el = document.elementFromPoint(dropX, dropY);
-  const target = inside && el?.closest('.element') && workEl.contains(el.closest('.element'))
-    ? el.closest('.element')
-    : null;
+  const targetEl = el?.closest('.element');
+  const target = inside && targetEl && workEl.contains(targetEl) ? targetEl : null;
 
   if (touchData.sourceEl) {
-    // Dragged from workspace
+    // From workspace
     if (target && target !== touchData.sourceEl) {
       combine(target.dataset.name, touchData.name);
-      touchData.sourceEl.remove();
+     // touchData.sourceEl.remove();
     } else if (inside) {
       const x = dropX - wsR.left - touchData.offsetX;
       const y = dropY - wsR.top - touchData.offsetY;
@@ -261,18 +259,21 @@ function onTouchEnd(e) {
       touchData.sourceEl.style.top = y + 'px';
     }
   } else {
-    // Dragged from inventory
+    // From inventory — always spawn tile in workspace
+    const x = dropX - wsR.left - touchData.offsetX;
+    const y = dropY - wsR.top - touchData.offsetY;
+    makeWorkspaceTile(touchData.name, x, y); // always place tile
+
     if (target) {
-      combine(target.dataset.name, touchData.name);
-    } else if (inside) {
-      const x = dropX - wsR.left - touchData.offsetX;
-      const y = dropY - wsR.top - touchData.offsetY;
-      makeWorkspaceTile(touchData.name, x, y);
+      combine(target.dataset.name, touchData.name); // match if possible
     }
   }
 
   touchData.ghost.remove();
 }
+
+
+
 
 
   
