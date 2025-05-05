@@ -1,0 +1,5 @@
+cd C:/Users/STU/Documents/code/alch
+git status
+git add .
+git commit -m "Update code and styling2"
+git push

@@ -110,6 +110,16 @@ const workEl       = document.getElementById('workspace');
 const clearEl      = document.getElementById('clear-btn');
 const notifyParent = document.getElementById('notification-container');
 
+function unlockAudio() {
+  matchSound.play().then(() => {
+    matchSound.pause();
+    matchSound.currentTime = 0;
+  }).catch(() => {
+    // do nothing — silently fail if blocked
+  });
+}
+
+
 // ---- HELPER: SHOW NOTIFICATION ----
 function showNotification(txt) {
   const n = document.createElement('div');
@@ -205,6 +215,8 @@ workEl.addEventListener('drop', e=>{
 // ---- TOUCH DRAG/DROP FOR MOBILE ----
 const touchData = {};
 function onTouchStart(e) {
+	 unlockAudio(); // 🔓 unlock iOS audio context
+  
   e.preventDefault();
   const el = e.currentTarget;
   const fromWorkspace = workEl.contains(el);
