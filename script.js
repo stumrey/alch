@@ -1,6 +1,7 @@
-// ---- INITIAL DATA ----
+// ---- INITIAL DATA & RECIPES ----
 const initialElements = ['person','money','idea'];
 const recipes = {
+  /* your full recipe map here */
   'person+money':'producer',
   'person+person':'actor',
   'idea+person':'writer',
@@ -104,13 +105,20 @@ const matchSound = new Audio('match.wav');
 // ---- STATE & REFS ----
 let inventory = [...initialElements];
 let discovered = new Set(initialElements);
-let dragSourceName = null;
-let dragSourceEl = null;
 
-const invEl = document.getElementById('inventory-items');
-const workEl = document.getElementById('workspace');
-const clearBtn = document.getElementById('clear-btn');
+const invEl        = document.getElementById('inventory-items');
+const workEl       = document.getElementById('workspace');
+const clearEl      = document.getElementById('clear-btn');
 const notifyParent = document.getElementById('notification-container');
+
+// ---- HELPER: SHOW NOTIFICATION ----
+function showNotification(txt) {
+  const n = document.createElement('div');
+  n.className = 'notification';
+  n.textContent = txt;
+  notifyParent.appendChild(n);
+  n.addEventListener('animationend', ()=>n.remove());
+}
 
 // ---- RENDER INVENTORY ----
 function renderInventory() {
@@ -125,98 +133,148 @@ function renderInventory() {
       dragSourceName = name;
       dragSourceEl = null;
     });
+    // touchstart for inventory spawn & combine on mobile
+    d.addEventListener('touchstart', onTouchStart, {passive:false});
     invEl.appendChild(d);
   });
 }
 renderInventory();
 
-// ---- MAKE AND APPEND A WORKSPACE TILE ----
-function makeWorkspaceTile(name, x, y) {
+// ---- MAKE WORKSPACE TILE ----
+function makeWorkspaceTile(name,x,y) {
   const d = document.createElement('div');
   d.className = 'element';
   d.textContent = name;
   d.dataset.name = name;
   d.style.position = 'absolute';
-  d.style.left = x + 'px';
-  d.style.top  = y + 'px';
+  d.style.left = x+'px';
+  d.style.top  = y+'px';
   d.draggable = true;
-
   d.addEventListener('dragstart', e => {
     dragSourceName = name;
     dragSourceEl = d;
-    e.dataTransfer.setData('text/plain', '');
+    e.dataTransfer.setData('text/plain','');
   });
-
   d.addEventListener('dragover', e => e.preventDefault());
   d.addEventListener('drop', e => {
     e.preventDefault();
     combine(d.dataset.name, dragSourceName);
   });
-
+  // touch handlers for workspace tile
+  d.addEventListener('touchstart', onTouchStart, {passive:false});
   workEl.appendChild(d);
   return d;
 }
 
-// ---- COMBINE TWO ELEMENTS ----
-function combine(a, b) {
-  const res = recipes[`${a}+${b}`] || recipes[`${b}+${a}`];
-  if (res && !discovered.has(res)) {
+// ---- COMBINE LOGIC ----
+function combine(a,b) {
+  const res = recipes[a+'+'+b]||recipes[b+'+'+a];
+  if(res && !discovered.has(res)) {
     discovered.add(res);
     inventory.push(res);
     matchSound.play();
-    showNotification(`Discovered: ${res}`);
+    showNotification('Discovered: '+res);
     renderInventory();
   }
 }
 
-// ---- POPUP ----
-function showNotification(txt) {
-  const n = document.createElement('div');
-  n.className = 'notification';
-  n.textContent = txt;
-  notifyParent.appendChild(n);
-  n.addEventListener('animationend', () => n.remove());
-}
-
-// ---- WORKSPACE DROP: SPAWN / MOVE / COMBINE ----
-workEl.addEventListener('dragover', e => e.preventDefault());
-workEl.addEventListener('drop', e => {
+// ---- DESKTOP DRAG/DROP ----
+let dragSourceName = null, dragSourceEl = null;
+workEl.addEventListener('dragover', e=>e.preventDefault());
+workEl.addEventListener('drop', e=>{
   e.preventDefault();
-  if (!dragSourceName) return;
-
-  const rect = workEl.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-
-  const el = document.elementFromPoint(e.clientX, e.clientY);
-  const target = el && el.closest('.element') && workEl.contains(el.closest('.element'))
-    ? el.closest('.element')
-    : null;
-
-  if (target) {
+  if(!dragSourceName) return;
+  const r = workEl.getBoundingClientRect();
+  const x = e.clientX - r.left, y = e.clientY - r.top;
+  const el = document.elementFromPoint(e.clientX,e.clientY);
+  const target = el&&el.closest('.element')&&workEl.contains(el.closest('.element'))
+                 ? el.closest('.element') : null;
+  if(target) {
     combine(target.dataset.name, dragSourceName);
-  } else if (dragSourceEl) {
-    // move existing
-    dragSourceEl.style.left = x + 'px';
-    dragSourceEl.style.top  = y + 'px';
+  } else if(dragSourceEl){
+    dragSourceEl.style.left = x+'px';
+    dragSourceEl.style.top  = y+'px';
   } else {
-    // spawn new
-    makeWorkspaceTile(dragSourceName, x, y);
+    makeWorkspaceTile(dragSourceName,x,y);
   }
-
-  dragSourceName = null;
-  dragSourceEl = null;
+  dragSourceName = dragSourceEl = null;
 });
 
+// ---- TOUCH DRAG/DROP FOR MOBILE ----
+const touchData = {};
+function onTouchStart(e) {
+  e.preventDefault();  // stop scroll
+  const el = e.currentTarget;
+  touchData.name = el.dataset.name;
+  touchData.sourceEl = workEl.contains(el)? el:null;
+  touchData.ghost = el.cloneNode(true);
+  touchData.ghost.classList.add('drag-ghost');
+  document.body.appendChild(touchData.ghost);
+  const t = e.changedTouches[0];
+  const r = el.getBoundingClientRect();
+  touchData.offsetX = t.clientX - r.left;
+  touchData.offsetY = t.clientY - r.top;
+  moveGhost(t);
+  document.addEventListener('touchmove', onTouchMove, {passive:false});
+  document.addEventListener('touchend',  onTouchEnd);
+}
+
+function onTouchMove(e) {
+  e.preventDefault();
+  moveGhost(e.changedTouches[0]);
+}
+
+function moveGhost(t) {
+  touchData.ghost.style.left = (t.clientX-touchData.offsetX)+'px';
+  touchData.ghost.style.top  = (t.clientY-touchData.offsetY)+'px';
+}
+
+function onTouchEnd(e) {
+  document.removeEventListener('touchmove', onTouchMove);
+  document.removeEventListener('touchend', onTouchEnd);
+  const t = e.changedTouches[0];
+  const dropX = t.clientX, dropY = t.clientY;
+  const wsR = workEl.getBoundingClientRect();
+  const inside = dropX>=wsR.left && dropX<=wsR.right && dropY>=wsR.top && dropY<=wsR.bottom;
+  const el = document.elementFromPoint(dropX,dropY);
+  const target = inside && el.closest('.element')&&workEl.contains(el.closest('.element'))
+                 ? el.closest('.element') : null;
+
+  if(touchData.sourceEl) {
+    // moving existing
+    if(target && target!==touchData.sourceEl) {
+      combine(target.dataset.name, touchData.name);
+      touchData.sourceEl.remove();
+    } else if(inside) {
+      const x = dropX-wsR.left-touchData.offsetX;
+      const y = dropY-wsR.top -touchData.offsetY;
+      touchData.sourceEl.style.left = x+'px';
+      touchData.sourceEl.style.top  = y+'px';
+    }
+  } else {
+    // spawning or combining from inventory
+    if(target) {
+      combine(target.dataset.name, touchData.name);
+    } else if(inside) {
+      const x = dropX-wsR.left-touchData.offsetX;
+      const y = dropY-wsR.top -touchData.offsetY;
+      makeWorkspaceTile(touchData.name,x,y);
+    }
+  }
+
+  touchData.ghost.remove();
+}
+
+  
 // ---- CLEAR CANVAS ----
-clearBtn.addEventListener('click', () => {
-  workEl.querySelectorAll('.element').forEach(el => el.remove());
+clearEl.addEventListener('click',() => {
+  workEl.querySelectorAll('.element').forEach(el=>el.remove());
   clearSound.play();
   showNotification('Canvas Cleared');
-  if (!workEl.querySelector('.hint')) {
+  if(!workEl.querySelector('.hint')){
     const p = document.createElement('p');
-    p.className = 'hint';
-    p.textContent = 'Drag items here';
+    p.className='hint';
+    p.textContent='Drag items here';
     workEl.prepend(p);
   }
 });
