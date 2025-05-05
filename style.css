@@ -1,15 +1,25 @@
-/* 1) Base reset & font */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+/* —————————————————————————————
+   0) Prevent ANY overscroll/zoom on touch
+————————————————————————————— */
+html, body {
+  overscroll-behavior: none;
 }
+#inventory,
+#workspace,
+.element {
+  touch-action: none;
+  -ms-touch-action: none;
+}
+
+/* —————————————————————————————
+   1) Base reset & font
+————————————————————————————— */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+* { box-sizing: border-box; margin:0; padding:0 }
 body {
   display: flex;
   height: 100vh;
   font-family: 'Poppins', sans-serif;
-  /* gradient + subtle noise */
   background:
     repeating-linear-gradient(
       45deg,
@@ -23,15 +33,9 @@ body {
   overflow: hidden;
 }
 
-/* 2) Prevent page scroll during touch-drag */
-#inventory,
-#workspace,
-.element {
-  touch-action: none;
-  -ms-touch-action: none;
-}
-
-/* 3) Inventory panel */
+/* —————————————————————————————
+   2) Inventory panel
+————————————————————————————— */
 #inventory {
   width: 240px;
   background:
@@ -60,7 +64,9 @@ body {
   gap: 8px;
 }
 
-/* 4) Workspace area */
+/* —————————————————————————————
+   3) Workspace area
+————————————————————————————— */
 #workspace {
   flex: 1;
   position: relative;
@@ -80,41 +86,35 @@ body {
 }
 #workspace .hint {
   position: absolute;
-  top: 60px;
-  left: 20px;
+  top: 60px; left: 20px;
   color: #bdc3c7;
   font-size: 0.9em;
 }
 
-/* 5) Clear button (icon-only) */
+/* —————————————————————————————
+   4) Clear button
+————————————————————————————— */
 #clear-btn {
   position: absolute;
-  top: 16px;
-  left: 16px;
-  width: 40px;
-  height: 40px;
+  top: 16px; left: 16px;
+  width: 40px; height: 40px;
   background: linear-gradient(45deg, #e74c3c, #c0392b);
   border: none;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   box-shadow: 0 4px 8px rgba(0,0,0,0.3);
   cursor: pointer;
   transition: transform .1s, box-shadow .1s;
 }
-#clear-btn:hover {
-  box-shadow: 0 6px 12px rgba(0,0,0,0.4);
-}
-#clear-btn:active {
-  transform: scale(.95);
-}
+#clear-btn:hover { box-shadow: 0 6px 12px rgba(0,0,0,0.4); }
+#clear-btn:active { transform: scale(.95); }
 #clear-btn .material-icons {
-  color: #fff;
-  font-size: 20px;
+  color: #fff; font-size: 20px;
 }
 
-/* 6) Element tiles */
+/* —————————————————————————————
+   5) Element tiles
+————————————————————————————— */
 .element {
   background: #ff9f1c;
   padding: 6px 10px;
@@ -128,19 +128,15 @@ body {
   box-shadow: 0 2px 6px rgba(0,0,0,0.4);
   transition: box-shadow .2s;
 }
-.element:active {
-  box-shadow: 0 1px 3px rgba(0,0,0,0.6);
-}
-/* ensure inventory tiles don’t float */
-#inventory .element {
-  position: relative;
-}
+.element:active { box-shadow: 0 1px 3px rgba(0,0,0,0.6); }
+#inventory .element { position: relative; }
 
-/* 7) Notifications */
+/* —————————————————————————————
+   6) Notifications
+————————————————————————————— */
 #notification-container {
   position: fixed;
-  top: 20px;
-  left: 50%;
+  top: 20px; left: 50%;
   transform: translateX(-50%);
   pointer-events: none;
   z-index: 1000;
@@ -157,6 +153,5 @@ body {
   animation: fadeOut 3s ease forwards;
 }
 @keyframes fadeOut {
-  0%, 80% { opacity: 1; }
-  100%   { opacity: 0; }
+  0%,80% { opacity:1; } 100% { opacity:0; }
 }
