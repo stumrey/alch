@@ -151,13 +151,13 @@ function renderInventory() {
     invEl.appendChild(d);
   });
 
-  // Auto-scroll so newest is visible
-  if (window.innerWidth <= 600) {
+  // <-- NEW: always scroll horizontally to show the newest element
+  // give the browser a moment to layout
+  requestAnimationFrame(() => {
     invEl.scrollLeft = invEl.scrollWidth;
-  } else {
-    invEl.scrollTop = invEl.scrollHeight;
-  }
+  });
 }
+
 renderInventory();
 
 // ---- MAKE WORKSPACE TILE ----
