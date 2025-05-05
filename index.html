@@ -17,19 +17,25 @@
   <script src="https://unpkg.com/drag-drop-touch@0.0.3/index.js"></script>
 </head>
 <body>
-  <aside id="inventory">
-    <h2>Discovered</h2>
-    <div id="inventory-items"></div>
-  </aside>
+  <div id="split-container">
+    <aside id="inventory">
+      <h2>Discovered</h2>
+      <div id="inventory-items"></div>
+    </aside>
 
-  <main id="workspace">
-    <button id="clear-btn" aria-label="Clear Canvas">
-      <span class="material-icons">clear</span>
-    </button>
-    <p class="hint">Drag items here</p>
-  </main>
+    <!-- the draggable gutter -->
+    <div id="dragbar"></div>
+
+    <main id="workspace">
+      <button id="clear-btn" aria-label="Clear Canvas">
+        <span class="material-icons">clear</span>
+      </button>
+      <p class="hint">Drag items here</p>
+    </main>
+  </div>
 
   <div id="notification-container"></div>
   <script src="script.js"></script>
 </body>
+
 </html>

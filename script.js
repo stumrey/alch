@@ -323,3 +323,60 @@ clearBtn.addEventListener('click', () => {
     workEl.prepend(p);
   }
 });
+// ---- SPLIT RESIZER LOGIC ----
+(function() {
+  const dragbar = document.getElementById('dragbar');
+  const container = document.getElementById('split-container');
+  const leftPanel = document.getElementById('inventory');
+  let startX, startWidth;
+
+  function onMouseDown(e) {
+    startX = e.clientX;
+    startWidth = leftPanel.getBoundingClientRect().width;
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup',   onMouseUp);
+    e.preventDefault();
+  }
+
+  function onMouseMove(e) {
+    const dx = e.clientX - startX;
+    let newWidth = startWidth + dx;
+    const min = parseInt(getComputedStyle(leftPanel).minWidth);
+    const max = container.clientWidth * 0.8;
+    newWidth = Math.max(min, Math.min(max, newWidth));
+    leftPanel.style.flex = `0 0 ${newWidth}px`;
+  }
+
+  function onMouseUp() {
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup',   onMouseUp);
+  }
+
+  // Touch support
+  function onTouchStart(e) {
+    const t = e.touches[0];
+    startX = t.clientX;
+    startWidth = leftPanel.getBoundingClientRect().width;
+    document.addEventListener('touchmove', onTouchMove, {passive:false});
+    document.addEventListener('touchend',  onTouchEnd);
+    e.preventDefault();
+  }
+
+  function onTouchMove(e) {
+    const t = e.touches[0];
+    const dx = t.clientX - startX;
+    let newWidth = startWidth + dx;
+    const min = parseInt(getComputedStyle(leftPanel).minWidth);
+    const max = container.clientWidth * 0.8;
+    newWidth = Math.max(min, Math.min(max, newWidth));
+    leftPanel.style.flex = `0 0 ${newWidth}px`;
+    e.preventDefault();
+  }
+  function onTouchEnd() {
+    document.removeEventListener('touchmove', onTouchMove);
+    document.removeEventListener('touchend',  onTouchEnd);
+  }
+
+  dragbar.addEventListener('mousedown', onMouseDown);
+  dragbar.addEventListener('touchstart', onTouchStart, {passive:false});
+})();
