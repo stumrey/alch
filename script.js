@@ -101,6 +101,19 @@ const recipes = {
 const clearSound = new Audio('clear.wav');
 const matchSound = new Audio('match.wav');
 
+// ---- UNLOCK AUDIO FOR iOS ----
+let audioUnlocked = false;
+function unlockAudio() {
+  if (audioUnlocked) return;
+  // try to play & pause matchSound so the system considers us "gesture-driven"
+  matchSound.play().then(() => matchSound.pause()).catch(() => {/*ignored*/});
+  audioUnlocked = true;
+}
+// Listen for the first real tap/click anywhere
+document.addEventListener('click',   unlockAudio, { once: true });
+document.addEventListener('touchend',unlockAudio, { once: true });
+
+
 // ---- STATE & REFS ----
 let inventory = [...initialElements];
 let discovered = new Set(initialElements);
