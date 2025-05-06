@@ -1,5 +1,104 @@
 // ---- INITIAL DATA & RECIPES ----
 const initialElements = ['person','money','idea'];
+let showTerminals = true;
+let sortAsc = true;
+
+const elementIcons = {
+  person: "👤",
+  money: "💰",
+  idea: "💡",
+  actor: "🎭",
+  cast: "🎞️",
+  writer: "✍️",
+  script: "📜",
+  director: "🎬",
+  producer: "‍💼",
+  audition: "🎙️",
+  conflict: "💢",
+  chemistry: "⚗️",
+  footage: "📹",
+  blooper: "😅",
+  comedy: "😂",
+  slapstick: "🤪",
+  scene: "🎦",
+  drama: "🎭",
+  action: "💥",
+  stuntman: "🧗",
+  performance: "🎤",
+  movie: "🎥",
+  "action movie": "🎬",
+  fight: "🥊",
+  violence: "🩸",
+  horror: "👻",
+  thriller: "🧠",
+  marketing: "📢",
+  trailer: "📽️",
+  hype: "📈",
+  celebrity: "🌟",
+  cut: "✂️",
+  release: "📅",
+  blockbuster: "💣",
+  sequel: "🔁",
+  trilogy: "3️⃣",
+  franchise: "🧩",
+  "spin-off": "🌀",
+  award: "🏆",
+  Razzie: "🍅",
+  Oscar: "🏅",
+  "special effects": "✨",
+  "found footage": "🔍",
+  romcom: "💘",
+  "superhero": "🦸",
+  Marvel: "🧬",
+  "war movie": "⚔️",
+  "slasher movie": "🔪",
+  scream: "😱",
+  "sci fi": "🛸",
+  alien: "👽",
+  parasite: "🦠",
+  "chest burster": "💥",
+  closet: "🚪",
+  cornetto: "🍦",
+  speech: "🗣️",
+  ensemble: "👥",
+  "Shaun of the dead": "🧟",
+  "Bill and Ted": "🎸",
+  "The Matrix": "🕶️",
+  "Good Will Hunting": "📚",
+  "Ben Affleck": "🧔",
+  Batman: "🦇",
+  "Chris Nolan": "🎞️",
+  "Dark Knight Rises": "🌃",
+  "Heath Ledger": "🃏",
+  "Christian Bale": "🧍",
+  "Robin Williams": "🎤",
+  "Robert Downey Jr": "🧲",
+  "Michael Caine": "🎩",
+  "Peter Jackson": "🧙",
+  Godfather: "🕴️",
+  "Marlon Brando": "🍷",
+  "Jackie Chan": "🥋",
+  "bruce lee": "🐉",
+  OUATIH: "🎞️",
+  "Bad Taste": "🧠",
+  "video nasty": "📼",
+  "Blair Witch": "🌲",
+  flop: "📉",
+  "Park Chan-wook": "🎬",
+  "the ring": "📺",
+  Kurosawa: "📽️",
+  "star wars": "🌌",
+  Tarrantino: "🩸",
+  "stephen King": "📖",
+  Shawshank: "🔐",
+  "inglorius bastards": "💣",
+  "simon pegg": "😄",
+  "mission impossible": "💼",
+  "tom cruise": "✈️"
+};
+
+
+
 const recipes = {
   'person+money':'producer',
   'person+person':'actor',
@@ -136,26 +235,44 @@ function updateProgressTracker() {
 }
 function renderInventory() {
   invEl.innerHTML = '';
-  inventory.forEach(name => {
+
+  let sorted = [...inventory];
+  
+  // Filter out terminal elements if toggle is off
+  sorted = sorted.filter(name => showTerminals || !isTerminalElement(name));
+  
+  // Sort A–Z or Z–A
+  sorted.sort((a, b) => sortAsc ? a.localeCompare(b) : b.localeCompare(a));
+
+  // Render each element
+  sorted.forEach(name => {
     const d = document.createElement('div');
     d.className = 'element';
-    d.textContent = name;
+
+    const icon = elementIcons[name] || "❓";
+    d.innerHTML = `<div class="emoji">${icon}</div><div class="label">${name}</div>`;
     d.dataset.name = name;
+
     if (isTerminalElement(name)) d.classList.add('terminal');
+
     d.draggable = true;
     d.addEventListener('dragstart', () => {
       dragSourceName = name;
       dragSourceEl = null;
     });
-    d.addEventListener('touchstart', onTouchStart, {passive:false});
+    d.addEventListener('touchstart', onTouchStart, { passive: false });
+
     invEl.appendChild(d);
   });
+
   updateProgressTracker();
 }
+
 function makeWorkspaceTile(name,x,y) {
   const d = document.createElement('div');
   d.className = 'element';
-  d.textContent = name;
+  const icon = elementIcons[name] || "?";
+d.innerHTML = `<div class="emoji">${icon}</div><div class="label">${name}</div>`;
   d.dataset.name = name;
   if (isTerminalElement(name)) d.classList.add('terminal');
   d.style.left = x+'px';
@@ -213,7 +330,10 @@ workEl.addEventListener('drop', e=>{
     dragSourceEl.style.left = x+'px';
     dragSourceEl.style.top  = y+'px';
   } else {
-    makeWorkspaceTile(dragSourceName,x,y);
+    //makeWorkspaceTile(dragSourceName,x,y);
+  const tile = makeWorkspaceTile(dragSourceName, x, y);
+  tile.style.left = x + 'px';
+  tile.style.top = y + 'px';
   }
   dragSourceName = dragSourceEl = null;
 });
@@ -303,6 +423,8 @@ function loadGame() {
   }
 }
 
+
+
 // ---- INIT ----
 saveEl.addEventListener('click', saveGame);
 loadEl.addEventListener('click', loadGame);
@@ -320,9 +442,54 @@ clearEl.addEventListener('click',() => {
 loadGame();
 renderInventory();
 
+const toggleTerminalBtn = document.getElementById('toggle-terminal');
+const toggleSortBtn = document.getElementById('toggle-sort');
+
+toggleTerminalBtn.addEventListener('click', () => {
+  showTerminals = !showTerminals;
+  renderInventory();
+});
+
+toggleSortBtn.addEventListener('click', () => {
+  sortAsc = !sortAsc;
+  renderInventory();
+});
+
 const infoBtn = document.getElementById('info-btn');
 const infoModal = document.getElementById('info-modal');
 const closeInfoBtn = document.getElementById('close-info');
+const resetBtn = document.getElementById('reset-btn');
+const confirmModal = document.getElementById('confirm-modal');
+const confirmDelete = document.getElementById('confirm-delete');
+const cancelDelete = document.getElementById('cancel-delete');
+
+infoBtn.addEventListener('click', () => {
+  infoModal.classList.remove('hidden');
+});
+
+closeInfoBtn.addEventListener('click', () => {
+  infoModal.classList.add('hidden');
+});
+
+resetBtn.addEventListener('click', () => {
+  confirmModal.classList.remove('hidden');
+});
+
+confirmDelete.addEventListener('click', () => {
+  localStorage.removeItem('movieAlchemyInventory');
+  localStorage.removeItem('movieAlchemyDiscovered');
+  inventory = [...initialElements];
+  discovered = new Set(initialElements);
+  renderInventory();
+  workEl.querySelectorAll('.element').forEach(el => el.remove());
+  showNotification("Saved data deleted. Game reset.");
+  confirmModal.classList.add('hidden');
+});
+
+cancelDelete.addEventListener('click', () => {
+  confirmModal.classList.add('hidden');
+});
+
 
 infoBtn.addEventListener('click', () => {
   infoModal.classList.remove('hidden');

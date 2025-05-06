@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <!-- Prevent zoom/scroll on touch -->
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
   <title>Movie Alchemy</title>
 
@@ -10,62 +9,91 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-  <!-- Your styles -->
+  <!-- Styles -->
   <link rel="stylesheet" href="style.css" />
 
-  <!-- Drag-Drop Touch polyfill for iOS Safari -->
+  <!-- Drag-Drop Touch Polyfill -->
   <script src="https://unpkg.com/drag-drop-touch@0.0.3/index.js"></script>
 </head>
 <body>
   <aside id="inventory">
-    <h2>Discovered</h2>
+    <div id="inventory-header">
+  <h2>Discovered</h2>
+  <div class="inventory-controls">
+    <button id="toggle-terminal" title="Show/Hide Terminal Elements">🧬</button>
+    <button id="toggle-sort" title="Sort A–Z / Z–A">🔀</button>
+  </div>
+</div>
+
     <div id="inventory-items"></div>
   </aside>
 
   <main id="workspace">
+    <!-- BUTTONS -->
     <button id="clear-btn" aria-label="Clear Canvas">
       <span class="material-icons">clear</span>
     </button>
-	<button id="save-btn" aria-label="Save Game">
-  <span class="material-icons">save</span>
+    <button id="save-btn" aria-label="Save Game">
+      <span class="material-icons">save</span>
+    </button>
+    <button id="load-btn" aria-label="Load Game">
+      <span class="material-icons">restore</span>
+    </button>
+	<button id="reset-btn" aria-label="Delete Save">
+  <span class="material-icons">delete_forever</span>
 </button>
-<button id="load-btn" aria-label="Load Game">
-  <span class="material-icons">restore</span>
-</button>
+
     <button id="trash-btn" aria-label="Trash Element">
-  <span class="material-icons">delete</span>
-</button>
+      <span class="material-icons">delete</span>
+    </button>
+    <button id="info-btn" aria-label="Instructions">
+      <span class="material-icons">info</span>
+    </button>
 
-<button id="info-btn" aria-label="Instructions">
-  <span class="material-icons">info</span>
-</button>
+    <!-- HINT -->
+      <!--  <p class="hint">Drag items here</p> -->
+  </main>
 
-<div id="info-modal" class="modal hidden">
-  <div class="modal-content">
-    <h2>How to Play Movie Alchemy 🎬</h2>
-    <ul>
-      <li>🧩 Drag <strong>two items</strong> into the workspace to try combining them.</li>
-      <li>🔁 Only <strong>two elements</strong> can be combined at a time.</li>
-      <li>💾 Use the buttons on the left:
-        <ul>
-          <li><strong>Clear</strong> – clears the canvas.</li>
-          <li><strong>Save</strong> – saves your progress to this device.</li>
-          <li><strong>Load</strong> – restores your last save.</li>
-          <li><strong>Trash</strong> – drag items here to remove them.</li>
-        </ul>
-      </li>
-      <li>🚫 Elements in <em>italic purple</em> are <strong>terminal</strong> — they can't be combined any further.</li>
-    </ul>
-    <button id="close-info">Close</button>
+  <!-- NOTIFICATIONS -->
+  <div id="notification-container"></div>
+
+  <!-- PROGRESS -->
+  <div id="progress-tracker">Discovered 0 of 0</div>
+
+  <!-- INFO MODAL -->
+  <div id="info-modal" class="modal hidden">
+  <div class="modal-content two-column">
+    <div class="modal-text">
+      <h2>How to Play 🎬</h2>
+      <ul>
+        <li><strong>Combine 2 elements</strong> in the workspace to create new ones.</li>
+        <li><strong>Drag from inventory</strong> into the workspace to test combos.</li>
+        <li>Only <strong>two elements</strong> can be combined at once.</li>
+        <li>🧬 Terminal elements (purple italics) can't combine with anything else.</li>
+        <li>🔀 Use A–Z button to sort inventory. Tap again to reverse.</li>
+        <li>🧬 Use terminal toggle to hide/show terminal elements.</li>
+        <li>💾 Use the sidebar buttons to save, load, reset, or clear workspace.</li>
+      </ul>
+      <button id="close-info">Close</button>
+    </div>
+    <div class="creator-badge">
+      <img src="me.png" alt="Stu R - Creator" />
+    </div>
   </div>
 </div>
 
+<div id="confirm-modal" class="modal hidden">
+  <div class="modal-content">
+    <h3>Delete Saved Game?</h3>
+    <p>This will erase all progress and reset the game. Are you sure?</p>
+    <div class="confirm-buttons">
+      <button id="confirm-delete">Yes, Delete</button>
+      <button id="cancel-delete">Cancel</button>
+    </div>
+  </div>
+</div>
 
-  </main>
-  <div id="progress-tracker">Discovered 0 of 0</div>
-
-
-  <div id="notification-container"></div>
+  <!-- SCRIPT -->
   <script src="script.js"></script>
 </body>
 </html>
