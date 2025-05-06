@@ -120,7 +120,12 @@ body {
 #save-btn  { top: 64px; left: 16px; background: linear-gradient(45deg, #2ecc71, #27ae60); }
 #load-btn  { top: 112px; left: 16px; background: linear-gradient(45deg, #3498db, #2980b9); }
 #reset-btn { top: 160px; left: 16px; background: linear-gradient(45deg, #636e72, #2d3436); }
-#trash-btn { bottom: 16px; left: 16px; background: linear-gradient(45deg, #e67e22, #d35400); }
+#trash-btn {
+  top: 64px;
+  right: 16px;
+  background: linear-gradient(45deg, #e67e22, #d35400);
+}
+
 #info-btn  { top: 16px; right: 16px; background: linear-gradient(45deg, #00b894, #00cec9); }
 .material-icons {
   color: #fff;

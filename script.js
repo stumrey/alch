@@ -435,7 +435,7 @@ clearEl.addEventListener('click',() => {
   if(!workEl.querySelector('.hint')){
     const p = document.createElement('p');
     p.className='hint';
-    p.textContent='Drag items here';
+    p.textContent='';
     workEl.prepend(p);
   }
 });
