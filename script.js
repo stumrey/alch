@@ -1,3 +1,25 @@
+
+// Detects if the device is on iOS 
+const isIos = () => {
+  const userAgent = window.navigator.userAgent.toLowerCase();
+  return /iphone|ipad|ipod/.test(userAgent);
+};
+
+// Detects if device is in standalone mode
+const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+
+// Show the banner if needed
+const hasSeenInstallPopup = localStorage.getItem("hasSeenInstallPopup");
+if (!hasSeenInstallPopup && isIos() && !isInStandaloneMode()) {
+  document.getElementById('ios-install-banner').classList.remove('hidden');
+  localStorage.setItem("hasSeenInstallPopup", true);
+}
+
+// Close handler
+document.getElementById('close-ios-banner').addEventListener('click', () => {
+  document.getElementById('ios-install-banner').classList.add('hidden');
+});
+
 // ---- INITIAL DATA & RECIPES ----
 const initialElements = ['person','money','idea'];
 let showTerminals = true;

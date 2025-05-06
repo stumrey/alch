@@ -325,3 +325,42 @@ body {
     font-size: 1em;
   }
 }
+
+.ios-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0; right: 0;
+  background: #f1f1f1;
+  color: #333;
+  padding: 12px;
+  text-align: center;
+  font-size: 0.85em;
+  font-family: system-ui, sans-serif;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+}
+
+.ios-banner-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 600px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.ios-banner-content button {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: none;
+  font-size: 1.2em;
+  line-height: 1;
+  cursor: pointer;
+  color: #555;
+}
+
+.hidden {
+  display: none;
+}
+
