@@ -26,8 +26,44 @@
     <button id="clear-btn" aria-label="Clear Canvas">
       <span class="material-icons">clear</span>
     </button>
-    <p class="hint">Drag items here</p>
+	<button id="save-btn" aria-label="Save Game">
+  <span class="material-icons">save</span>
+</button>
+<button id="load-btn" aria-label="Load Game">
+  <span class="material-icons">restore</span>
+</button>
+    <button id="trash-btn" aria-label="Trash Element">
+  <span class="material-icons">delete</span>
+</button>
+
+<button id="info-btn" aria-label="Instructions">
+  <span class="material-icons">info</span>
+</button>
+
+<div id="info-modal" class="modal hidden">
+  <div class="modal-content">
+    <h2>How to Play Movie Alchemy 🎬</h2>
+    <ul>
+      <li>🧩 Drag <strong>two items</strong> into the workspace to try combining them.</li>
+      <li>🔁 Only <strong>two elements</strong> can be combined at a time.</li>
+      <li>💾 Use the buttons on the left:
+        <ul>
+          <li><strong>Clear</strong> – clears the canvas.</li>
+          <li><strong>Save</strong> – saves your progress to this device.</li>
+          <li><strong>Load</strong> – restores your last save.</li>
+          <li><strong>Trash</strong> – drag items here to remove them.</li>
+        </ul>
+      </li>
+      <li>🚫 Elements in <em>italic purple</em> are <strong>terminal</strong> — they can't be combined any further.</li>
+    </ul>
+    <button id="close-info">Close</button>
+  </div>
+</div>
+
+
   </main>
+  <div id="progress-tracker">Discovered 0 of 0</div>
+
 
   <div id="notification-container"></div>
   <script src="script.js"></script>

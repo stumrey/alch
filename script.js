@@ -97,6 +97,15 @@ const recipes = {
   'Shaun of the dead+trillogy':'cornetto'
 };
 
+// ---- TERMINAL DETECTION ----
+const inputs = new Set();
+Object.keys(recipes).forEach(key => {
+  key.split('+').forEach(part => inputs.add(part));
+});
+function isTerminalElement(name) {
+  return !inputs.has(name);
+}
+
 // ---- SOUNDS ----
 const clearSound = new Audio('clear.wav');
 const matchSound = new Audio('match.wav');
@@ -104,23 +113,17 @@ const matchSound = new Audio('match.wav');
 // ---- STATE & REFS ----
 let inventory = [...initialElements];
 let discovered = new Set(initialElements);
-
-const invEl        = document.getElementById('inventory-items');
-const workEl       = document.getElementById('workspace');
-const clearEl      = document.getElementById('clear-btn');
+const invEl = document.getElementById('inventory-items');
+const workEl = document.getElementById('workspace');
+const clearEl = document.getElementById('clear-btn');
 const notifyParent = document.getElementById('notification-container');
+const saveEl = document.getElementById('save-btn');
+const loadEl = document.getElementById('load-btn');
+const trashEl = document.getElementById('trash-btn');
+const progressEl = document.getElementById('progress-tracker');
+const totalUniqueElements = new Set(Object.values(recipes)).size;
 
-function unlockAudio() {
-  matchSound.play().then(() => {
-    matchSound.pause();
-    matchSound.currentTime = 0;
-  }).catch(() => {
-    // do nothing — silently fail if blocked
-  });
-}
-
-
-// ---- HELPER: SHOW NOTIFICATION ----
+// ---- HELPERS ----
 function showNotification(txt) {
   const n = document.createElement('div');
   n.className = 'notification';
@@ -128,8 +131,9 @@ function showNotification(txt) {
   notifyParent.appendChild(n);
   n.addEventListener('animationend', ()=>n.remove());
 }
-
-// ---- RENDER INVENTORY ----
+function updateProgressTracker() {
+  progressEl.textContent = `Discovered ${discovered.size} of ${totalUniqueElements}`;
+}
 function renderInventory() {
   invEl.innerHTML = '';
   inventory.forEach(name => {
@@ -137,6 +141,7 @@ function renderInventory() {
     d.className = 'element';
     d.textContent = name;
     d.dataset.name = name;
+    if (isTerminalElement(name)) d.classList.add('terminal');
     d.draggable = true;
     d.addEventListener('dragstart', () => {
       dragSourceName = name;
@@ -145,16 +150,14 @@ function renderInventory() {
     d.addEventListener('touchstart', onTouchStart, {passive:false});
     invEl.appendChild(d);
   });
+  updateProgressTracker();
 }
-renderInventory();
-
-// ---- MAKE WORKSPACE TILE ----
 function makeWorkspaceTile(name,x,y) {
   const d = document.createElement('div');
   d.className = 'element';
   d.textContent = name;
   d.dataset.name = name;
-  d.style.position = 'absolute';
+  if (isTerminalElement(name)) d.classList.add('terminal');
   d.style.left = x+'px';
   d.style.top  = y+'px';
   d.draggable = true;
@@ -166,16 +169,12 @@ function makeWorkspaceTile(name,x,y) {
   d.addEventListener('dragover', e => e.preventDefault());
   d.addEventListener('drop', e => {
     e.preventDefault();
-    if (combine(d.dataset.name, dragSourceName)) {
-      matchSound.play();
-    }
+    if (combine(d.dataset.name, dragSourceName)) matchSound.play();
   });
   d.addEventListener('touchstart', onTouchStart, {passive:false});
   workEl.appendChild(d);
   return d;
 }
-
-// ---- COMBINE LOGIC ----
 function combine(a,b) {
   const res = recipes[a+'+'+b]||recipes[b+'+'+a];
   if(res && !discovered.has(res)) {
@@ -183,12 +182,13 @@ function combine(a,b) {
     inventory.push(res);
     showNotification('Discovered: '+res);
     renderInventory();
+    saveGame();
     return true;
   }
   return false;
 }
 
-// ---- DESKTOP DRAG/DROP ----
+// ---- DRAG & DROP ----
 let dragSourceName = null, dragSourceEl = null;
 workEl.addEventListener('dragover', e=>e.preventDefault());
 workEl.addEventListener('drop', e=>{
@@ -197,12 +197,18 @@ workEl.addEventListener('drop', e=>{
   const r = workEl.getBoundingClientRect();
   const x = e.clientX - r.left, y = e.clientY - r.top;
   const el = document.elementFromPoint(e.clientX,e.clientY);
+  if (el === trashEl || trashEl.contains(el)) {
+    if (dragSourceEl && workEl.contains(dragSourceEl)) {
+      dragSourceEl.remove();
+      showNotification('Element Deleted');
+    }
+    dragSourceName = dragSourceEl = null;
+    return;
+  }
   const target = el?.closest('.element') && workEl.contains(el.closest('.element'))
                  ? el.closest('.element') : null;
   if(target) {
-    if (combine(target.dataset.name, dragSourceName)) {
-      matchSound.play();
-    }
+    if (combine(target.dataset.name, dragSourceName)) matchSound.play();
   } else if(dragSourceEl){
     dragSourceEl.style.left = x+'px';
     dragSourceEl.style.top  = y+'px';
@@ -212,11 +218,9 @@ workEl.addEventListener('drop', e=>{
   dragSourceName = dragSourceEl = null;
 });
 
-// ---- TOUCH DRAG/DROP FOR MOBILE ----
+// ---- TOUCH SUPPORT ----
 const touchData = {};
 function onTouchStart(e) {
-	// unlockAudio(); // 🔓 unlock iOS audio context
-  
   e.preventDefault();
   const el = e.currentTarget;
   const fromWorkspace = workEl.contains(el);
@@ -237,37 +241,34 @@ function onTouchStart(e) {
   document.addEventListener('touchmove', onTouchMove, { passive: false });
   document.addEventListener('touchend', onTouchEnd);
 }
-
 function onTouchMove(e) {
   e.preventDefault();
   moveGhost(e.changedTouches[0]);
 }
-
 function moveGhost(t) {
   touchData.ghost.style.left = (t.clientX-touchData.offsetX)+'px';
   touchData.ghost.style.top  = (t.clientY-touchData.offsetY)+'px';
 }
-
 function onTouchEnd(e) {
   document.removeEventListener('touchmove', onTouchMove);
   document.removeEventListener('touchend', onTouchEnd);
-
   const t = e.changedTouches[0];
   const dropX = t.clientX;
   const dropY = t.clientY;
   const wsR = workEl.getBoundingClientRect();
-
   const inside = dropX >= wsR.left && dropX <= wsR.right && dropY >= wsR.top && dropY <= wsR.bottom;
   const el = document.elementFromPoint(dropX, dropY);
   const targetEl = el?.closest('.element');
   const target = inside && targetEl && workEl.contains(targetEl) ? targetEl : null;
-
+  const trashRect = trashEl.getBoundingClientRect();
+  const overTrash = dropX >= trashRect.left && dropX <= trashRect.right &&
+                    dropY >= trashRect.top && dropY <= trashRect.bottom;
   if (touchData.sourceEl) {
-    // From workspace
-    if (target && target !== touchData.sourceEl) {
-      if (combine(target.dataset.name, touchData.name)) {
-        matchSound.play();
-      }
+    if (overTrash) {
+      touchData.sourceEl.remove();
+      showNotification('Element Deleted');
+    } else if (target && target !== touchData.sourceEl) {
+      if (combine(target.dataset.name, touchData.name)) matchSound.play();
     } else if (inside) {
       const x = dropX - wsR.left - touchData.offsetX;
       const y = dropY - wsR.top - touchData.offsetY;
@@ -275,21 +276,36 @@ function onTouchEnd(e) {
       touchData.sourceEl.style.top = y + 'px';
     }
   } else {
-    // From inventory
     const x = dropX - wsR.left - touchData.offsetX;
     const y = dropY - wsR.top - touchData.offsetY;
     const newTile = makeWorkspaceTile(touchData.name, x, y);
     if (target && target !== newTile) {
-      if (combine(target.dataset.name, touchData.name)) {
-        matchSound.play();
-      }
+      if (combine(target.dataset.name, touchData.name)) matchSound.play();
     }
   }
-
   touchData.ghost.remove();
 }
 
-// ---- CLEAR CANVAS ----
+// ---- SAVE / LOAD ----
+function saveGame() {
+  localStorage.setItem('movieAlchemyInventory', JSON.stringify(inventory));
+  localStorage.setItem('movieAlchemyDiscovered', JSON.stringify([...discovered]));
+  showNotification('Game Saved');
+}
+function loadGame() {
+  const inv = localStorage.getItem('movieAlchemyInventory');
+  const disc = localStorage.getItem('movieAlchemyDiscovered');
+  if (inv && disc) {
+    inventory = JSON.parse(inv);
+    discovered = new Set(JSON.parse(disc));
+    renderInventory();
+    showNotification('Game Loaded');
+  }
+}
+
+// ---- INIT ----
+saveEl.addEventListener('click', saveGame);
+loadEl.addEventListener('click', loadGame);
 clearEl.addEventListener('click',() => {
   workEl.querySelectorAll('.element').forEach(el=>el.remove());
   clearSound.play();
@@ -300,4 +316,18 @@ clearEl.addEventListener('click',() => {
     p.textContent='Drag items here';
     workEl.prepend(p);
   }
+});
+loadGame();
+renderInventory();
+
+const infoBtn = document.getElementById('info-btn');
+const infoModal = document.getElementById('info-modal');
+const closeInfoBtn = document.getElementById('close-info');
+
+infoBtn.addEventListener('click', () => {
+  infoModal.classList.remove('hidden');
+});
+
+closeInfoBtn.addEventListener('click', () => {
+  infoModal.classList.add('hidden');
 });

@@ -197,3 +197,127 @@ body {
     padding-top: 8px;
   }
 }
+#progress-tracker {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(255,255,255,0.1);
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 0.85em;
+  color: #fff;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  z-index: 1000;
+}
+
+#save-btn, #load-btn {
+  position: absolute;
+  left: 16px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform .1s, box-shadow .1s;
+}
+#save-btn {
+  top: 64px;
+  background: linear-gradient(45deg, #2ecc71, #27ae60);
+}
+#load-btn {
+  top: 112px;
+  background: linear-gradient(45deg, #3498db, #2980b9);
+}
+#save-btn .material-icons,
+#load-btn .material-icons {
+  color: #fff;
+  font-size: 20px;
+}
+#trash-btn {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(45deg, #e67e22, #d35400);
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform .1s, box-shadow .1s;
+}
+#trash-btn .material-icons {
+  color: #fff;
+  font-size: 20px;
+}
+
+.element.terminal {
+  font-style: italic;
+  background: #6c5ce7 !important;
+  color: #fff;
+}
+#info-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(45deg, #00b894, #00cec9);
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1001;
+}
+#info-btn .material-icons {
+  color: white;
+  font-size: 20px;
+}
+
+.modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+.modal.hidden {
+  display: none;
+}
+.modal-content {
+  background: white;
+  color: black;
+  padding: 20px 24px;
+  border-radius: 12px;
+  max-width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  font-size: 0.9em;
+  font-family: 'Poppins', sans-serif;
+}
+.modal-content h2 {
+  margin-top: 0;
+}
+.modal-content button {
+  margin-top: 16px;
+  padding: 8px 12px;
+  border: none;
+  background: #2d3436;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+
+
