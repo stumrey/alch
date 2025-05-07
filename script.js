@@ -2,12 +2,12 @@ let currentPage = 1;
 const ITEMS_PER_PAGE = 24;
 
 // ---- SOUNDS ----
-const clearSound = new Audio('clear.ogg');
-const matchSound = new Audio('match.ogg');
-const azSound = new Audio('az.ogg');
-const termSound = new Audio('term.ogg');
-const pageSound = new Audio('page.ogg');
-const wilhelmSound = new Audio('wilhelm.ogg');
+const clearSound = new Audio('clear.aac');
+const matchSound = new Audio('match.aac');
+const azSound = new Audio('az.aac');
+const termSound = new Audio('term.aac');
+const pageSound = new Audio('page.aac');
+const wilhelmSound = new Audio('wilhelm.aac');
 
 document.body.addEventListener('click', () => {
   matchSound.play().then(() => matchSound.pause()).catch(() => {});
