@@ -1,3 +1,18 @@
+let currentPage = 1;
+const ITEMS_PER_PAGE = 24;
+
+// ---- SOUNDS ----
+const clearSound = new Audio('clear.ogg');
+const matchSound = new Audio('match.ogg');
+const azSound = new Audio('az.ogg');
+const termSound = new Audio('term.ogg');
+const pageSound = new Audio('page.ogg');
+const wilhelmSound = new Audio('wilhelm.ogg');
+
+document.body.addEventListener('click', () => {
+  matchSound.play().then(() => matchSound.pause()).catch(() => {});
+}, { once: true });
+
 
 // Detects if the device is on iOS 
 const isIos = () => {
@@ -34,7 +49,7 @@ const elementIcons = {
   writer: "✍️",
   script: "📜",
   director: "🎬",
-  producer: "‍💼",
+  producer: "💼",
   audition: "🎙️",
   conflict: "💢",
   chemistry: "⚗️",
@@ -70,7 +85,7 @@ const elementIcons = {
   "special effects": "✨",
   "found footage": "🔍",
   romcom: "💘",
-  "superhero": "🦸",
+  superhero: "🦸",
   Marvel: "🧬",
   "war movie": "⚔️",
   "slasher movie": "🔪",
@@ -118,6 +133,7 @@ const elementIcons = {
   "mission impossible": "💼",
   "tom cruise": "✈️"
 };
+
 
 
 
@@ -227,9 +243,7 @@ function isTerminalElement(name) {
   return !inputs.has(name);
 }
 
-// ---- SOUNDS ----
-const clearSound = new Audio('clear.wav');
-const matchSound = new Audio('match.wav');
+
 
 // ---- STATE & REFS ----
 let inventory = [...initialElements];
@@ -259,36 +273,35 @@ function renderInventory() {
   invEl.innerHTML = '';
 
   let sorted = [...inventory];
-  
-  // Filter out terminal elements if toggle is off
   sorted = sorted.filter(name => showTerminals || !isTerminalElement(name));
-  
-  // Sort A–Z or Z–A
   sorted.sort((a, b) => sortAsc ? a.localeCompare(b) : b.localeCompare(a));
 
-  // Render each element
-  sorted.forEach(name => {
+  const totalPages = Math.ceil(sorted.length / ITEMS_PER_PAGE);
+  if (currentPage > totalPages) currentPage = totalPages || 1;
+
+  const start = (currentPage - 1) * ITEMS_PER_PAGE;
+  const pageItems = sorted.slice(start, start + ITEMS_PER_PAGE);
+
+  pageItems.forEach(name => {
     const d = document.createElement('div');
     d.className = 'element';
-
-    const icon = elementIcons[name] || "❓";
+    const icon = elementIcons[name] || "?";
     d.innerHTML = `<div class="emoji">${icon}</div><div class="label">${name}</div>`;
     d.dataset.name = name;
-
     if (isTerminalElement(name)) d.classList.add('terminal');
-
     d.draggable = true;
     d.addEventListener('dragstart', () => {
       dragSourceName = name;
       dragSourceEl = null;
     });
     d.addEventListener('touchstart', onTouchStart, { passive: false });
-
     invEl.appendChild(d);
   });
 
+  document.getElementById('page-indicator').textContent = `Page ${currentPage} of ${totalPages}`;
   updateProgressTracker();
 }
+
 
 function makeWorkspaceTile(name,x,y) {
   const d = document.createElement('div');
@@ -469,11 +482,13 @@ const toggleSortBtn = document.getElementById('toggle-sort');
 
 toggleTerminalBtn.addEventListener('click', () => {
   showTerminals = !showTerminals;
+  termSound.play();
   renderInventory();
 });
 
 toggleSortBtn.addEventListener('click', () => {
   sortAsc = !sortAsc;
+  azSound.play();
   renderInventory();
 });
 
@@ -515,8 +530,29 @@ cancelDelete.addEventListener('click', () => {
 
 infoBtn.addEventListener('click', () => {
   infoModal.classList.remove('hidden');
+  wilhelmSound.play();
 });
+
 
 closeInfoBtn.addEventListener('click', () => {
   infoModal.classList.add('hidden');
 });
+
+document.getElementById('prev-page').addEventListener('click', () => {
+  if (currentPage > 1) {
+    currentPage--;
+    pageSound.play();
+    renderInventory();
+  }
+});
+
+document.getElementById('next-page').addEventListener('click', () => {
+  const visibleCount = inventory.filter(n => showTerminals || !isTerminalElement(n)).length;
+  const totalPages = Math.ceil(visibleCount / ITEMS_PER_PAGE);
+  if (currentPage < totalPages) {
+    currentPage++;
+    pageSound.play();
+    renderInventory();
+  }
+});
+
