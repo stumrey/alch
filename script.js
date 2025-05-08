@@ -1,13 +1,20 @@
 let currentPage = 1;
 const ITEMS_PER_PAGE = 24;
 
+const discoveredRecipes = new Set(); // Track unique discovered combos
+let recipePage = 1;
+const RECIPES_PER_PAGE = 10;
+
+
 // ---- SOUNDS ----
-const clearSound = new Audio('clear.aac');
-const matchSound = new Audio('match.aac');
-const azSound = new Audio('az.aac');
-const termSound = new Audio('term.aac');
-const pageSound = new Audio('page.aac');
-const wilhelmSound = new Audio('wilhelm.aac');
+//const clearSound = new Audio('sounds/clear.aac');
+const clearSound = new Audio('sounds/sabre.aac');
+
+const matchSound = new Audio('sounds/match.aac');
+const azSound = new Audio('sounds/boop.aac');
+const termSound = new Audio('sounds/clap.aac');
+const pageSound = new Audio('sounds/camera.aac');
+const wilhelmSound = new Audio('sounds/tada.aac');
 
 document.body.addEventListener('click', () => {
   matchSound.play().then(() => matchSound.pause()).catch(() => {});
@@ -60,11 +67,11 @@ const elementIcons = {
   scene: "🎦",
   drama: "🎭",
   action: "💥",
-  stuntman: "🧗",
+  stuntman: "🤾‍♀️",
   performance: "🎤",
   movie: "🎥",
   "action movie": "🎬",
-  fight: "🥊",
+  fight: "🤼‍♂️",
   violence: "🩸",
   horror: "👻",
   thriller: "🧠",
@@ -74,64 +81,71 @@ const elementIcons = {
   celebrity: "🌟",
   cut: "✂️",
   release: "📅",
-  blockbuster: "💣",
+  blockbuster: "💸",
   sequel: "🔁",
   trilogy: "3️⃣",
   franchise: "🧩",
   "spin-off": "🌀",
-  award: "🏆",
-  Razzie: "🍅",
-  Oscar: "🏅",
-  "special effects": "✨",
+  award: "🏅",
+  razzie: "🍅",
+  oscar: "🏆",
+  "SFX": "✨",
   "found footage": "🔍",
   romcom: "💘",
   superhero: "🦸",
-  Marvel: "🧬",
-  "war movie": "⚔️",
+  marvel: "🦹‍♂️",
   "slasher movie": "🔪",
   scream: "😱",
   "sci fi": "🛸",
   alien: "👽",
-  parasite: "🦠",
+  parasite: "🐛",
   "chest burster": "💥",
   closet: "🚪",
   cornetto: "🍦",
   speech: "🗣️",
   ensemble: "👥",
-  "Shaun of the dead": "🧟",
-  "Bill and Ted": "🎸",
-  "The Matrix": "🕶️",
-  "Good Will Hunting": "📚",
-  "Ben Affleck": "🧔",
-  Batman: "🦇",
-  "Chris Nolan": "🎞️",
-  "Dark Knight Rises": "🌃",
-  "Heath Ledger": "🃏",
-  "Christian Bale": "🧍",
-  "Robin Williams": "🎤",
-  "Robert Downey Jr": "🧲",
-  "Michael Caine": "🎩",
-  "Peter Jackson": "🧙",
-  Godfather: "🕴️",
-  "Marlon Brando": "🍷",
-  "Jackie Chan": "🥋",
-  "bruce lee": "🐉",
+  "shaun OTD": "🧟",
+  "bill n ted": "👥",
+  "the matrix": "🧮",
+  "good will H": "📚",
+  "b affleck": "🧔",
+  batman: "🦇",
+  "c nolan": "⏲️",
+  "dark knight": "🌃",
+  "h ledger": "🃏",
+  "c bale": "🧍",
+  "r williams": "🤹🏻‍♂️",
+  "downey jr": "🤖",
+  "m caine": "👓",
+  "p jackson": "🧙",
+  godfather: "🐴",
+  "brando": "🍷",
+  "j chan": "🥋",
+  "b lee": "🐉",
   OUATIH: "🎞️",
-  "Bad Taste": "🧠",
+  "bad taste": "🧠",
   "video nasty": "📼",
-  "Blair Witch": "🌲",
+  "blair witch": "🌲",
   flop: "📉",
-  "Park Chan-wook": "🎬",
+  "p chan-wook": "🎬",
   "the ring": "📺",
-  Kurosawa: "📽️",
-  "star wars": "🌌",
-  Tarrantino: "🩸",
-  "stephen King": "📖",
-  Shawshank: "🔐",
-  "inglorius bastards": "💣",
-  "simon pegg": "😄",
-  "mission impossible": "💼",
-  "tom cruise": "✈️"
+  kurosawa: "📽️",
+  "star wars": "🪐",
+  tarrantino: "🩸",
+  "s king": "📖",
+  shawshank: "👮",
+  "inglorius bast": "💣",
+  "s pegg": "👨‍💼",
+  "m impossible": "💼",
+  "t cruise": "🌈",
+  bomb: "💣",
+  "c stahelski" :"👲",
+  "asian Cinema": "🎎",
+  chaplin: "👨🏻‍🦯",
+  "dark knight r": "🚓",
+  keanu: "🏍️",
+  "martial arts": "🥋",
+  "war movie": "⚔️"
 };
 
 
@@ -155,7 +169,7 @@ const recipes = {
   'conflict+script':'drama',
   'scene+conflict':'action',
   'action+person':'stuntman',
-  'stuntman+director':'Chad Stahelski',
+  'stuntman+director':'c stahelski',
   'actor+script':'performance',
   'footage+money':'movie',
   'movie+action':'action movie',
@@ -173,65 +187,65 @@ const recipes = {
   'blockbuster+cast':'sequel',
   'sequel+sequel':'trilogy',
   'trilogy+money':'franchise',
-  'trilogy+director':'Peter Jackson',
+  'trilogy+director':'p jackson',
   'franchise+actor':'spin-off',
-  'Chad Stahelski+actor':'Keanu Reeves',
-  'Keanu Reeves+trilogy':'The Matrix',
-  'Keanu Reeves+comedy':'Bill and Ted',
+  'Chad Stahelski+actor':'keanu',
+  'keanu+trilogy':'the matrix',
+  'keanu+comedy':'bill n ted',
   'performance+hype':'award',
-  'award+flop':'Razzie',
-  'award+money':'Oscar',
-  'chemistry+money':'special effects',
-  'Peter Jackson+horror':'Bad Taste',
-  'Bad Taste+horror':'video nasty',
-  'sequel+Oscar':'Godfather',
-  'Godfather+actor':'Marlon Brando',
+  'award+flop':'razzie',
+  'award+money':'oscar',
+  'chemistry+money':'SFX',
+  'p jackson+horror':'bad taste',
+  'bad taste+horror':'video nasty',
+  'sequel+oscar':'godfather',
+  'godfather+actor':'brando',
   'comedy+chemistry':'romcom',
   'horror+footage':'found footage',
-  'found footage+hype':'Blair Witch',
-  'Blair Witch+sequel':'flop',
+  'found footage+hype':'blair witch',
+  'blair witch+sequel':'flop',
   'cast+chemistry':'ensemble',
-  'special effects+action':'superhero',
-  'superhero+franchise':'Marvel',
-  'Marvel+actor':'Robert Downey Jr',
-  'comedy+actor':'Robin Williams',
-  'money+Razzie':'bomb',
+  'SFX+action':'superhero',
+  'superhero+franchise':'marvel',
+  'marvel+actor':'downey jr',
+  'comedy+actor':'r williams',
+  'money+razzie':'bomb',
   'bomb+action movie':'war movie',
-  'Robin Williams+drama':'Good Will Hunting',
-  'Good Will Hunting+writer':'Ben Affleck',
-  'Ben Affleck+superhero':'Batman',
-  'Batman+director':'Chris Nolan',
-  'Batman+sequel':'Dark Knight Rises',
-  'Dark Knight Rises+Oscar':'Heath Ledger',
-  'Chris Nolan+actor':'Michael Caine',
-  'Batman+actor':'Christian Bale',
-  'slapstick+actor':'Charlie Chaplin',
+  'r williams+drama':'good will h',
+  'good will h+writer':'b affleck',
+  'b affleck+superhero':'batman',
+  'batman+director':'c nolan',
+  'batman+sequel':'dark knight r',
+  'dark knight r+oscar':'h ledger',
+  'c nolan+actor':'m caine',
+  'batman+actor':'c bale',
+  'slapstick+actor':'chaplin',
   'celebrity+award':'speech',
-  'horror+romcom':'Shaun of the dead',
-  'writer+director':'Tarrantino',
-  'horror+writer':'stephen King',
-  'stephen King+drama':'Shawshank',
-  'tarantino+war movie':'inglorius bastards',
+  'horror+romcom':'Shaun OTD',
+  'writer+director':'tarrantino',
+  'horror+writer':'s king',
+  's king+drama':'shawshank',
+  'tarantino+war movie':'inglorius bast',
   'horror+cut':'slasher movie',
   'slasher movie+franchise':'scream',
-  'shaun of the dead+actor':'simon pegg',
-  'simon pegg+franchise':'mission impossible',
-  'mission impossible+actor':'tom cruise',
-  'stuntman+actor':'Jackie Chan',
-  'jackie Chan+fight':'martial arts',
-  'martial arts+celebrity':'bruce lee',
-  'bruce lee+tarantino':'OUATIH',
-  'martial arts+sctipy':'asian cinema',
+  'shaun OTD+actor':'s pegg',
+  's pegg+franchise':'m impossible',
+  'm impossible+actor':'t cruise',
+  'stuntman+actor':'j chan',
+  'j chan+fight':'martial arts',
+  'martial arts+celebrity':'b lee',
+  'b lee+tarantino':'OUATIH',
+  'martial arts+script':'asian cinema',
   'asian cinema+oscar':'parasite',
-  'asian cinema+director':'Kurosawa',
-  'asian cinema+trilogy':'Park Chan-wook',
+  'asian cinema+director':'kurosawa',
+  'asian cinema+trilogy':'p chan-wook',
   'asian cinema+franchise':'the ring',
-  'kurosawa+sfx':'star wars',
+  'kurosawa+SFX':'star wars',
   'star wars+script':'sci fi',
   'sci fi+horror':'alien',
   'alien+parasite':'chest burster',
-  'tom cruise+the ring':'closet',
-  'Shaun of the dead+trillogy':'cornetto'
+  't cruise+the ring':'closet',
+  'Shaun+OTDtrillogy':'cornetto'
 };
 
 // ---- TERMINAL DETECTION ----
@@ -327,18 +341,20 @@ d.innerHTML = `<div class="emoji">${icon}</div><div class="label">${name}</div>`
   workEl.appendChild(d);
   return d;
 }
-function combine(a,b) {
-  const res = recipes[a+'+'+b]||recipes[b+'+'+a];
-  if(res && !discovered.has(res)) {
+function combine(a, b) {
+  const res = recipes[a + '+' + b] || recipes[b + '+' + a];
+  if (res && !discovered.has(res)) {
     discovered.add(res);
     inventory.push(res);
-    showNotification('Discovered: '+res);
+    discoveredRecipes.add(`${a} + ${b} ? ${res}`);
+    showNotification('Discovered: ' + res);
     renderInventory();
     saveGame();
     return true;
   }
   return false;
 }
+
 
 // ---- DRAG & DROP ----
 let dragSourceName = null, dragSourceEl = null;
@@ -445,11 +461,20 @@ function onTouchEnd(e) {
 function saveGame() {
   localStorage.setItem('movieAlchemyInventory', JSON.stringify(inventory));
   localStorage.setItem('movieAlchemyDiscovered', JSON.stringify([...discovered]));
+  localStorage.setItem('movieAlchemyRecipes', JSON.stringify([...discoveredRecipes]));
   showNotification('Game Saved');
 }
+
 function loadGame() {
   const inv = localStorage.getItem('movieAlchemyInventory');
   const disc = localStorage.getItem('movieAlchemyDiscovered');
+  const savedRecipes = localStorage.getItem('movieAlchemyRecipes');
+
+  if (savedRecipes) {
+    discoveredRecipes.clear();
+    JSON.parse(savedRecipes).forEach(r => discoveredRecipes.add(r));
+  }
+
   if (inv && disc) {
     inventory = JSON.parse(inv);
     discovered = new Set(JSON.parse(disc));
@@ -457,6 +482,7 @@ function loadGame() {
     showNotification('Game Loaded');
   }
 }
+
 
 
 
@@ -555,4 +581,54 @@ document.getElementById('next-page').addEventListener('click', () => {
     renderInventory();
   }
 });
+
+
+const recipeBtn = document.getElementById('show-recipe-list');
+const recipeModal = document.getElementById('recipe-modal');
+const recipeList = document.getElementById('recipe-list');
+const closeRecipe = document.getElementById('close-recipe');
+
+recipeBtn.addEventListener('click', () => {
+  recipeModal.classList.remove('hidden');
+  renderRecipeList();
+});
+
+closeRecipe.addEventListener('click', () => {
+  recipeModal.classList.add('hidden');
+});
+
+function renderRecipeList() {
+  const sorted = Array.from(discoveredRecipes).sort();
+  const totalPages = Math.ceil(sorted.length / RECIPES_PER_PAGE);
+
+  if (recipePage > totalPages) recipePage = totalPages || 1;
+
+  const start = (recipePage - 1) * RECIPES_PER_PAGE;
+  const pageItems = sorted.slice(start, start + RECIPES_PER_PAGE);
+
+  recipeList.innerHTML = '';
+  pageItems.forEach(recipe => {
+    const li = document.createElement('li');
+    li.textContent = recipe;
+    recipeList.appendChild(li);
+  });
+
+  document.getElementById('recipe-page-indicator').textContent = `Page ${recipePage} of ${totalPages}`;
+}
+document.getElementById('recipe-prev').addEventListener('click', () => {
+  if (recipePage > 1) {
+    recipePage--;
+    renderRecipeList();
+  }
+});
+
+document.getElementById('recipe-next').addEventListener('click', () => {
+  const total = Math.ceil(discoveredRecipes.size / RECIPES_PER_PAGE);
+  if (recipePage < total) {
+    recipePage++;
+    renderRecipeList();
+  }
+});
+
+
 
