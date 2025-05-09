@@ -4,6 +4,9 @@ html, body {
   margin: 0;
   padding: 0;
   height: 100dvh; /* NEW: dynamic viewport height fixes iOS Safari */
+  width: 100vw;
+  max-width: 100vw;
+ 
   font-family: 'Poppins', sans-serif;
   overscroll-behavior: none;
   overflow: hidden;
