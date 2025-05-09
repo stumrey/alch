@@ -1,3 +1,8 @@
+  if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
+    document.body.classList.add('standalone-mode');
+  }
+
+
 let currentPage = 1;
 const ITEMS_PER_PAGE = 24;
 

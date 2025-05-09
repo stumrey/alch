@@ -1,4 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+body.standalone-mode #inventory-header {
+  padding-top: env(safe-area-inset-top, 20px);
+}
 
 html, body {
   margin: 0;
