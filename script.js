@@ -15,6 +15,10 @@ const azSound = new Audio('sounds/boop.aac');
 const termSound = new Audio('sounds/clap.aac');
 const pageSound = new Audio('sounds/camera.aac');
 const wilhelmSound = new Audio('sounds/tada.aac');
+const screamSound = new Audio('sounds/Wilhelm.aac');
+const r2Sound = new Audio('sounds/r2.aac');
+
+
 
 document.body.addEventListener('click', () => {
   matchSound.play().then(() => matchSound.pause()).catch(() => {});
@@ -222,7 +226,7 @@ const recipes = {
   'slapstick+actor':'chaplin',
   'celebrity+award':'speech',
   'horror+romcom':'Shaun OTD',
-  'writer+director':'tarrantino',
+  'writer+director':'tarantino',
   'horror+writer':'s king',
   's king+drama':'shawshank',
   'tarantino+war movie':'inglorius bast',
@@ -535,6 +539,7 @@ closeInfoBtn.addEventListener('click', () => {
 });
 
 resetBtn.addEventListener('click', () => {
+  screamSound.play(); // 🔊 Play the sound
   confirmModal.classList.remove('hidden');
 });
 
@@ -589,6 +594,7 @@ const recipeList = document.getElementById('recipe-list');
 const closeRecipe = document.getElementById('close-recipe');
 
 recipeBtn.addEventListener('click', () => {
+  r2Sound.play(); // 🔊 Play sound
   recipeModal.classList.remove('hidden');
   renderRecipeList();
 });

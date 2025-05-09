@@ -37,6 +37,7 @@
         <button id="toggle-terminal" title="Show/Hide Terminal Elements">🧬</button>
         <button id="toggle-sort" title="Sort A–Z / Z–A">🔤</button>
         <button id="show-recipe-list" title="Discovered Recipes">📘</button>
+        <button id="info-btn" aria-label="Instructions">❔</button>
       </div>
     </div>
 
@@ -50,13 +51,17 @@
   </aside>
 
   <main id="workspace">
-    <!-- BUTTONS -->
-    <button id="clear-btn" aria-label="Clear Canvas"><span class="material-icons">clear</span></button>
-    <button id="save-btn" aria-label="Save Game"><span class="material-icons">save</span></button>
-    <button id="load-btn" aria-label="Load Game"><span class="material-icons">restore</span></button>
-    <button id="reset-btn" aria-label="Delete Save"><span class="material-icons">delete_forever</span></button>
-    <button id="trash-btn" aria-label="Trash Element"><span class="material-icons">delete</span></button>
-    <button id="info-btn" aria-label="Instructions"><span class="material-icons">info</span></button>
+   
+    <button id="clear-btn" aria-label="Clear Canvas">🧼</button>
+    
+    <button id="save-btn" aria-label="Save Game" style="visibility:hidden"><span class="material-icons" >save</span></button>
+    <button id="load-btn" aria-label="Load Game" style="visibility:hidden"><span class="material-icons">restore</span></button>
+  
+ 
+  
+    <button id="reset-btn" aria-label="Delete Save">❌</button>
+  <button id="trash-btn" aria-label="Trash Element">🗑️</button>
+
   </main>
 
   <!-- NOTIFICATIONS -->
@@ -77,7 +82,7 @@
           <li>🧬 Terminal elements (purple italics) can't combine with anything else.</li>
           <li>🔤 Use A–Z button to sort inventory. Tap again to reverse.</li>
           <li>🧬 Use terminal toggle to hide/show terminal elements.</li>
-          <li>💾 Use the sidebar buttons to save, load, reset, or clear workspace.</li>
+          <li>🗑️ Drag items into the bin to remove from workspace.</li>
         </ul>
         <button id="close-info">Close</button>
       </div>

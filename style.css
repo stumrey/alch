@@ -86,6 +86,7 @@ body {
 }
 
 /* Workspace area */
+
 #workspace {
   flex: 1;
   position: relative;
@@ -106,7 +107,7 @@ body {
 }
 
 /* Buttons */
-#clear-btn, #save-btn, #load-btn, #trash-btn, #info-btn, #reset-btn {
+#clear-btn, #save-btn, #load-btn, #trash-btn,  #reset-btn {
   position: absolute;
   width: 40px;
   height: 40px;
@@ -119,21 +120,17 @@ body {
   transition: transform .1s, box-shadow .1s;
   z-index: 1001;
 }
-#clear-btn { top: 16px; left: 16px; background: linear-gradient(45deg, #e74c3c, #c0392b); }
+#clear-btn { top: 16px; left: 16px;    font-size: 28px;background: linear-gradient(45deg, #e74c3c, #c0392b); }
 #save-btn  { top: 64px; left: 16px; background: linear-gradient(45deg, #2ecc71, #27ae60); }
-#load-btn  { top: 112px; left: 16px; background: linear-gradient(45deg, #3498db, #2980b9); }
-#reset-btn { top: 160px; left: 16px; background: linear-gradient(45deg, #636e72, #2d3436); }
-#trash-btn {
-  top: 64px;
-  right: 16px;
+#load-btn  { top: 112px; left: 16px;   font-size: 28px; background: linear-gradient(45deg, #3498db, #2980b9); }
+#reset-btn { top: 16px; right: 16px;   font-size: 28px; background: linear-gradient(45deg, #636e72, #2d3436); }
+#trash-btn {  font-size: 28px;   top: 16px;  left: 50%;
+  transform: translateX(-50%);
   background: linear-gradient(45deg, #e67e22, #d35400);
 }
 
-#info-btn  { top: 16px; right: 16px; background: linear-gradient(45deg, #00b894, #00cec9); }
-.material-icons {
-  color: #fff;
-  font-size: 20px;
-}
+
+
 
 /* Element tiles */
 .element {
